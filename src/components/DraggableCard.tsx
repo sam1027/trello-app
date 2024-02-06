@@ -1,6 +1,7 @@
 import React from 'react';
 import { Draggable } from 'react-beautiful-dnd';
 import styled from 'styled-components';
+import { ITodo } from '../atoms';
 
 const Card = styled.div<{$isDragging:boolean}>`
   border-radius: 5px;
@@ -11,13 +12,13 @@ const Card = styled.div<{$isDragging:boolean}>`
 `;
 
 interface IDraggableCard {
-    todo: string,
+    todo: ITodo,
     index: number,
 }
 
 function DraggableCard({todo, index}:IDraggableCard) {
     return (
-        <Draggable key={todo} draggableId={todo} index={index}>
+        <Draggable key={todo.id} draggableId={todo.id.toString()} index={index}>
             {(magic, snapshot) => 
                 <Card 
                 $isDragging={snapshot.isDragging}
@@ -25,7 +26,7 @@ function DraggableCard({todo, index}:IDraggableCard) {
                 {...magic.draggableProps}
                 {...magic.dragHandleProps}
                 >
-                {todo}
+                {todo.text}
                 </Card>
             }
         </Draggable>
