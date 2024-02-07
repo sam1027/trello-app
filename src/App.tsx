@@ -1,7 +1,7 @@
 import {DragDropContext, Draggable, Droppable, DropResult} from 'react-beautiful-dnd';
 import styled from 'styled-components';
 import {useRecoilState} from 'recoil';
-import { boardState, todoState } from './atoms';
+import { boardState } from './atoms';
 import Board from './components/Board';
 import { useForm } from 'react-hook-form';
 
@@ -78,46 +78,63 @@ function App() {
     debugger;
     // Boards
     if(source.droppableId === "allBoards" && source.droppableId === destination.droppableId){
-
+      setBoards(boards => {
+        let allBoardCopy = [...boards];
+        const sourceBoardCopy = {...allBoardCopy[source.index]};
+        allBoardCopy.splice(source.index, 1);
+        allBoardCopy.splice(destination.index, 0, sourceBoardCopy);
+        return allBoardCopy;
+      });
     }
     // Todos
     else{
       if(destination.droppableId === 'delete'){
         setBoards(boards => {
-          const boardCopy = [...boards];
-          const targetIdx = boardCopy.findIndex(board => board.id.toString() === source.droppableId);
-          const targetTodos = [...boardCopy[targetIdx].todos];
-          targetTodos.splice(source.index, 1);
-          debugger;
-          return boardCopy;
+          const allBoardCopy = [...boards];
+          const boardIdx = allBoardCopy.findIndex(board => board.id.toString() === source.droppableId);
+          let boardCopy = {...allBoardCopy[boardIdx]};
+          const todosCopy = [...boardCopy.todos];
+          todosCopy.splice(source.index, 1);
+          boardCopy = {...boardCopy, todos: todosCopy};
+          allBoardCopy.splice(boardIdx, 1, boardCopy);
+          return allBoardCopy;
         });
       }
-      // else if(destination?.droppableId === source.droppableId){
-      //   setTodo(allBoards => {
-      //     const boardCopy = [...allBoards[source.droppableId]];
-      //     const grabTodo = boardCopy[source.index];
-      //     boardCopy.splice(source.index, 1);
-      //     boardCopy.splice(destination?.index, 0, grabTodo);
-      //     return {
-      //       ...allBoards,
-      //       [source.droppableId]: boardCopy,
-      //     };
-      //   });
-      // }
-      //else{
-      //   setTodo(allBoards => {
-      //     const sourceCopy = [...allBoards[source.droppableId]];
-      //     const grabTodo = sourceCopy[source.index];
-      //     sourceCopy.splice(source.index, 1);
-      //     const destinationCopy = [...allBoards[destination.droppableId]];
-      //     destinationCopy.splice(destination?.index, 0, grabTodo);
-      //     return {
-      //       ...allBoards,
-      //       [source.droppableId]: sourceCopy,
-      //       [destination.droppableId]: destinationCopy,
-      //     };
-      //   });
-      // }
+      else if(destination?.droppableId === source.droppableId){
+        setBoards(boards => {
+          const allBoardCopy = [...boards];
+          const boardIdx = allBoardCopy.findIndex(board => board.id.toString() === source.droppableId);
+          let boardCopy = {...allBoardCopy[boardIdx]};
+          const todosCopy = [...boardCopy.todos];
+          const grabTodo = todosCopy[source.index];
+          todosCopy.splice(source.index, 1);
+          todosCopy.splice(destination.index, 0, grabTodo);
+
+          boardCopy = {...boardCopy, todos: todosCopy};
+          allBoardCopy.splice(boardIdx, 1, boardCopy);
+          return allBoardCopy;
+        });
+      }
+      else{
+        setBoards(boards => {
+          const allBoardCopy = [...boards];
+          const sourceBoardIdx = allBoardCopy.findIndex(board => board.id.toString() === source.droppableId);
+          const targetBoardIdx = allBoardCopy.findIndex(board => board.id.toString() === destination.droppableId);
+          let sourceBoardCopy = {...allBoardCopy[sourceBoardIdx]};
+          let targetBoardCopy = {...allBoardCopy[targetBoardIdx]};
+          const sourceTodosCopy = [...sourceBoardCopy.todos];
+          const targetTodosCopy = [...targetBoardCopy.todos];
+          const grabTodo = sourceTodosCopy[source.index];
+          sourceTodosCopy.splice(source.index, 1);
+          targetTodosCopy.splice(destination.index, 0, grabTodo);
+
+          sourceBoardCopy = {...sourceBoardCopy, todos: sourceTodosCopy};
+          targetBoardCopy = {...targetBoardCopy, todos: targetTodosCopy};
+          allBoardCopy.splice(sourceBoardIdx, 1, sourceBoardCopy);
+          allBoardCopy.splice(targetBoardIdx, 1, targetBoardCopy);
+          return allBoardCopy;
+        });
+      }
     }
 
   };
@@ -161,8 +178,8 @@ function App() {
                   $isDraggingOver={info.isDraggingOver}
               >
                   <span>Delete</span>
-                  {magic.placeholder}
               </Delete>
+              {magic.placeholder}
             </DeleteDiv>
           }
         </Droppable>

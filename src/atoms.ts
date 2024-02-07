@@ -24,7 +24,7 @@ export const boardState = atom<IBoard[]>({
         {id: 2, name: 'Doing', todos: []}, 
         {id: 3, name: 'Done', todos: []}, 
     ],
-    // effects_UNSTABLE: [persistAtom],
+    effects_UNSTABLE: [persistAtom],
 })
 
 export const todoState = atom<ITodoState>({
@@ -34,5 +34,5 @@ export const todoState = atom<ITodoState>({
         Doing: [],
         Done: [],
     },
-    // effects_UNSTABLE: [persistAtom],
+    effects_UNSTABLE: [persistAtom],
 })
